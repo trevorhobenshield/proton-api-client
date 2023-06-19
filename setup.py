@@ -14,7 +14,7 @@ install_requires = [
 
 setup(
     name='proton-api-client',
-    version='0.0.2',
+    version='0.0.3',
     python_requires='>=3.10.10',
     description='Proton Mail API',
     long_description=dedent('''
@@ -27,11 +27,11 @@ setup(
     from proton.client import ProtonMail
     
     username, password = ..., ...
-    gpg_passphrase = ...
-    proton = ProtonMail(username, password, gpg_passphrase=gpg_passphrase)
+    proton = ProtonMail(username, password)
     
-    # pk = 'privatekey.hotmale@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
-    # proton.gpg_import(pk)
+    passphrase = 'myPass'
+    pk = 'privatekey.hotmale@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
+    proton.gpg_import(pk, passphrase=passphrase)
     
     salts = proton.salts()
     
@@ -56,7 +56,6 @@ setup(
     
     info = proton.info()
     ```
-    
     '''),
     long_description_content_type='text/markdown',
     author='Trevor Hobenshield',

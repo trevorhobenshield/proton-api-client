@@ -6,11 +6,11 @@
 from proton.client import ProtonMail
 
 username, password = ..., ...
-gpg_passphrase = ...
-proton = ProtonMail(username, password, gpg_passphrase=gpg_passphrase)
+proton = ProtonMail(username, password)
 
-# pk = 'privatekey.hotmale@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
-# proton.gpg_import(pk)
+passphrase = 'myPass'
+pk = 'privatekey.hotmale@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
+proton.gpg_import(pk, passphrase=passphrase)
 
 salts = proton.salts()
 
