@@ -18,11 +18,10 @@ v    Password verifier
 import ctypes
 import sys, os
 
-from .constants import  SRP_LEN_BYTES, SALT_LEN_BYTES
+from .constants import SRP_LEN_BYTES, SALT_LEN_BYTES
 from .helpers import pm_hash, hash_password
 
 dlls = []
-
 platform = sys.platform
 if platform == 'darwin':
     dlls.append(ctypes.cdll.LoadLibrary('libssl.dylib'))
@@ -153,9 +152,7 @@ def bn_hash_k(hash_class, dest, g, N, width):
 
 
 def calculate_x(hash_class, dest, salt, password, modulus):
-    exp = hash_password(
-        hash_class, password, salt, bn_to_bytes(modulus, SRP_LEN_BYTES)
-    )
+    exp = hash_password(hash_class, password, salt, bn_to_bytes(modulus, SRP_LEN_BYTES))
     bytes_to_bn(dest, exp)
 
 
@@ -183,11 +180,9 @@ def get_ngk(hash_class, n_bin, g_hex, ctx):
     N = new_bn()  # noqa
     g = new_bn()  # noqa
     k = new_bn()  # noqa
-
     bytes_to_bn(N, n_bin)
     BN_hex2bn(g, g_hex)  # noqa
     bn_hash_k(hash_class, k, g, N, SRP_LEN_BYTES)
-
     return N, g, k
 
 
@@ -260,24 +255,19 @@ class User(object):
     def get_challenge(self):
         return bn_to_bytes(self.A, SRP_LEN_BYTES)
 
-    # Returns M or None if SRP-6a safety check is violated
     def process_challenge(self, bytes_s, bytes_server_challenge):
+        """ Returns M or None if SRP-6a safety check is violated """
         self.bytes_s = bytes_s
         bytes_to_bn(self.B, bytes_server_challenge)
-
         # SRP-6a safety check
         if bn_is_zero(self.B):
             return None
-
         bn_hash(self.hash_class, self.u, self.A, self.B)
-
         # SRP-6a safety check
         if bn_is_zero(self.u):
             return None
-
         calculate_x(self.hash_class, self.x, self.bytes_s, self.password, self.N)
         BN_mod_exp(self.v, self.g, self.x, self.N, self.ctx)  # noqa
-
         # S = (B - k*(g^x)) ^ (a + ux)
         BN_mul(self.tmp1, self.u, self.x, self.ctx)  # noqa
         BN_add(self.tmp2, self.a, self.tmp1)  # noqa tmp2 = (a + ux)
@@ -285,15 +275,9 @@ class User(object):
         BN_mul(self.tmp3, self.k, self.tmp1, self.ctx)  # noqa tmp3 = k*(g^x)
         BN_sub(self.tmp1, self.B, self.tmp3)  # noqa tmp1 = (B - K*(g^x))
         BN_mod_exp(self.S, self.tmp1, self.tmp2, self.N, self.ctx)  # noqa
-
         self.K = bn_to_bytes(self.S, SRP_LEN_BYTES)
-        self.M = calculate_client_challenge(
-            self.hash_class, self.A, self.B, self.K
-        )
-        self.expected_server_proof = calculate_server_challenge(
-            self.hash_class, self.A, self.M, self.K
-        )
-
+        self.M = calculate_client_challenge(self.hash_class, self.A, self.B, self.K)
+        self.expected_server_proof = calculate_server_challenge(self.hash_class, self.A, self.M, self.K)
         return self.M
 
     def verify_session(self, server_proof):
@@ -307,13 +291,9 @@ class User(object):
             self.bytes_s = bn_to_bytes(salt, SALT_LEN_BYTES)
         else:
             self.bytes_s = bytes_s
-
         calculate_x(self.hash_class, self.x, self.bytes_s, self.password, self.N)
         BN_mod_exp(self.v, self.g, self.x, self.N, self.ctx)  # noqa
         return self.bytes_s, bn_to_bytes(self.v, SRP_LEN_BYTES)
 
 
-# ---------------------------------------------------------
-# Init
-#
 RAND_seed(os.urandom(32), 32)  # noqa

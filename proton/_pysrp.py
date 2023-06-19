@@ -83,35 +83,24 @@ class User(object):
     def get_challenge(self) -> bytes:
         return long_to_bytes(self.A, SRP_LEN_BYTES)
 
-    # Returns M or None if SRP-6a safety check is violated
+
     def process_challenge(self, bytes_s: bytes, bytes_server_challenge: bytes) -> bytes | None:
+        """ Returns M or None if SRP-6a safety check is violated """
         self.bytes_s = bytes_s
         self.B = bytes_to_long(bytes_server_challenge)
-
         # SRP-6a safety check
         if (self.B % self.N) == 0:
             return None
-
         self.u = custom_hash(self.hash_class, self.A, self.B)
-
         # SRP-6a safety check
         if self.u == 0:
             return None
-
         self.x = calc_x(self.hash_class, self.bytes_s, self.p, self.N)
-
         self.v = pow(self.g, self.x, self.N)
-
-        self.S = pow(
-            (self.B - self.k * self.v), (self.a + self.u * self.x), self.N
-        )
-
+        self.S = pow((self.B - self.k * self.v), (self.a + self.u * self.x), self.N)
         self.K = long_to_bytes(self.S, SRP_LEN_BYTES)
         self.M = calc_client_proof(self.hash_class, self.A, self.B, self.K)  # noqa
-        self.expected_server_proof = calc_server_proof(
-            self.hash_class, self.A, self.M, self.K
-        )
-
+        self.expected_server_proof = calc_server_proof(self.hash_class, self.A, self.M, self.K)
         return self.M
 
     def verify_session(self, server_proof: bytes) -> None:
@@ -119,8 +108,8 @@ class User(object):
             self._authenticated = True
 
     def compute_v(self, bytes_s: bytes = None) -> tuple[bytes, bytes]:
-        self.bytes_s = long_to_bytes(get_random_of_length(SALT_LEN_BYTES),
-                                     SALT_LEN_BYTES) if bytes_s is None else bytes_s
+        self.bytes_s = long_to_bytes(
+            get_random_of_length(SALT_LEN_BYTES),
+            SALT_LEN_BYTES) if bytes_s is None else bytes_s
         self.x = calc_x(self.hash_class, self.bytes_s, self.p, self.N)
-
         return self.bytes_s, long_to_bytes(pow(self.g, self.x, self.N), SRP_LEN_BYTES)
