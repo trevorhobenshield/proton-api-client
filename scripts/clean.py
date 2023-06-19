@@ -1,0 +1,1 @@
+import shutil;import pathlib;[shutil.rmtree(p) for p in pathlib.Path('../').iterdir() if p.name in {'env', 'dist', 'proton_api_client.egg-info'}]
