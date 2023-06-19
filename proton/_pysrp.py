@@ -83,7 +83,6 @@ class User(object):
     def get_challenge(self) -> bytes:
         return long_to_bytes(self.A, SRP_LEN_BYTES)
 
-
     def process_challenge(self, bytes_s: bytes, bytes_server_challenge: bytes) -> bytes | None:
         """ Returns M or None if SRP-6a safety check is violated """
         self.bytes_s = bytes_s
