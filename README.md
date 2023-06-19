@@ -23,7 +23,7 @@ conversation = proton.decrypt_conversation(conversation_id)
 
 decrypted_inbox = proton.inbox_decrypted()
 
-core_settings = proton.user_settings()
+user_settings = proton.user_settings()
 
 mail_settings = proton.mail_settings()
 
