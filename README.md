@@ -9,9 +9,8 @@ username, password = ..., ...
 proton = ProtonMail(username, password)
 
 passphrase = 'myPass'
-pk = 'privatekey.hotmale@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
+pk = 'privatekey.test123@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
 proton.gpg_import(pk, passphrase=passphrase)
-
 
 sessions = proton.sessions()
 
@@ -38,5 +37,12 @@ addresses = proton.addresses()
 
 info = proton.info()
 
+directory = proton.calendar_directory()
+
+version = proton.version()
+
+plans = proton.plans()
+
+calendar_directory = proton.calendar_directory()
+
 proton.revoke_all_sessions()
-```

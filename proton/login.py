@@ -26,7 +26,7 @@ def login(username: str, password: str) -> Client:
     user.verify_session(b64decode(auth['ServerProof']))
 
     # todo
-    print('login success') if user.authenticated() else print('login failure')
+    print('login success') if user.authenticated() else print('*** login failure')
 
     if auth['UID']:
         client.headers.update({

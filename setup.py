@@ -10,11 +10,13 @@ install_requires = [
     'orjson',
     'httpx',
     'tqdm',
+    'uvloop',
+    'nest_asyncio',
 ]
 
 setup(
     name='proton-api-client',
-    version='0.0.4',
+    version='0.0.5',
     python_requires='>=3.10.10',
     description='Proton Mail API',
     long_description=dedent('''
@@ -30,9 +32,8 @@ setup(
     proton = ProtonMail(username, password)
     
     passphrase = 'myPass'
-    pk = 'privatekey.hotmale@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
+    pk = 'privatekey.test123@proton.me-6fdhskjgfd7s98gdgre87gregrjdhrgd7897g898.asc'
     proton.gpg_import(pk, passphrase=passphrase)
-    
     
     sessions = proton.sessions()
 
@@ -58,6 +59,14 @@ setup(
     addresses = proton.addresses()
 
     info = proton.info()
+
+    directory = proton.calendar_directory()
+
+    version = proton.version()
+
+    plans = proton.plans()
+
+    calendar_directory = proton.calendar_directory()
 
     proton.revoke_all_sessions()
     
