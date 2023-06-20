@@ -16,37 +16,37 @@ v    Password verifier
 """
 
 from .constants import SRP_LEN_BYTES, SALT_LEN_BYTES
-from .helpers import pm_hash, bytes_to_long, custom_hash, get_random_of_length, hash_password, long_to_bytes
+from .helpers import pm_hash, b2l, hash_custom, randl, hash_password, l2b
 
 
 def get_ng(n_bin: bytes, g_hex: bytes) -> tuple[int, int]:
-    return bytes_to_long(n_bin), int(g_hex, 16)
+    return b2l(n_bin), int(g_hex, 16)
 
 
 def hash_k(hash_class: callable, g: int, modulus: int, width: int) -> int:
     h = hash_class()
     h.update(g.to_bytes(width, 'little'))
     h.update(modulus.to_bytes(width, 'little'))
-    return bytes_to_long(h.digest())
+    return b2l(h.digest())
 
 
 def calc_x(hash_class: callable, salt: bytes, password: str, modulus: int) -> int:
-    mod = long_to_bytes(modulus, SRP_LEN_BYTES)
+    mod = l2b(modulus, SRP_LEN_BYTES)
     exp = hash_password(hash_class, password, salt, mod)
-    return bytes_to_long(exp)
+    return b2l(exp)
 
 
 def calc_client_proof(hash_class: callable, A: int, B: int, K: bytes) -> bytes:
     h = hash_class()
-    h.update(long_to_bytes(A, SRP_LEN_BYTES))
-    h.update(long_to_bytes(B, SRP_LEN_BYTES))
+    h.update(l2b(A, SRP_LEN_BYTES))
+    h.update(l2b(B, SRP_LEN_BYTES))
     h.update(K)
     return h.digest()
 
 
 def calc_server_proof(hash_class: callable, A: int, M: bytes, K: bytes) -> bytes:
     h = hash_class()
-    h.update(long_to_bytes(A, SRP_LEN_BYTES))
+    h.update(l2b(A, SRP_LEN_BYTES))
     h.update(M)
     h.update(K)
     return h.digest()
@@ -58,7 +58,7 @@ class User(object):
         self.hash_class = pm_hash
         self.N, self.g = get_ng(n_bin, g_hex)
         self.k = hash_k(self.hash_class, self.g, self.N, SRP_LEN_BYTES)
-        self.a = get_random_of_length(32)
+        self.a = randl(32)
         self.A = pow(self.g, self.a, self.N)
         self.expected_server_proof = None
         self._authenticated = False
@@ -75,29 +75,29 @@ class User(object):
         return self._authenticated
 
     def get_ephemeral_secret(self) -> bytes:
-        return long_to_bytes(self.a, SRP_LEN_BYTES)
+        return l2b(self.a, SRP_LEN_BYTES)
 
     def get_session_key(self) -> bytes | None:
         return self.K if self._authenticated else None
 
     def get_challenge(self) -> bytes:
-        return long_to_bytes(self.A, SRP_LEN_BYTES)
+        return l2b(self.A, SRP_LEN_BYTES)
 
     def process_challenge(self, bytes_s: bytes, bytes_server_challenge: bytes) -> bytes | None:
         """ Returns M or None if SRP-6a safety check is violated """
         self.bytes_s = bytes_s
-        self.B = bytes_to_long(bytes_server_challenge)
+        self.B = b2l(bytes_server_challenge)
         # SRP-6a safety check
         if (self.B % self.N) == 0:
             return None
-        self.u = custom_hash(self.hash_class, self.A, self.B)
+        self.u = hash_custom(self.hash_class, self.A, self.B)
         # SRP-6a safety check
         if self.u == 0:
             return None
         self.x = calc_x(self.hash_class, self.bytes_s, self.p, self.N)
         self.v = pow(self.g, self.x, self.N)
         self.S = pow((self.B - self.k * self.v), (self.a + self.u * self.x), self.N)
-        self.K = long_to_bytes(self.S, SRP_LEN_BYTES)
+        self.K = l2b(self.S, SRP_LEN_BYTES)
         self.M = calc_client_proof(self.hash_class, self.A, self.B, self.K)  # noqa
         self.expected_server_proof = calc_server_proof(self.hash_class, self.A, self.M, self.K)
         return self.M
@@ -107,8 +107,8 @@ class User(object):
             self._authenticated = True
 
     def compute_v(self, bytes_s: bytes = None) -> tuple[bytes, bytes]:
-        self.bytes_s = long_to_bytes(
-            get_random_of_length(SALT_LEN_BYTES),
+        self.bytes_s = l2b(
+            randl(SALT_LEN_BYTES),
             SALT_LEN_BYTES) if bytes_s is None else bytes_s
         self.x = calc_x(self.hash_class, self.bytes_s, self.p, self.N)
-        return self.bytes_s, long_to_bytes(pow(self.g, self.x, self.N), SRP_LEN_BYTES)
+        return self.bytes_s, l2b(pow(self.g, self.x, self.N), SRP_LEN_BYTES)

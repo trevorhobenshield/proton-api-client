@@ -1,9 +1,9 @@
 VERSION = "0.7.1"
-PM_APP_VERSION = 'web-mail@5.0.23.1'
-PM_API_VERSION = 4
+PM_APP_VERSION_MAIL = 'web-mail@5.0.23.1'
+PM_APP_VERSION_ACCOUNT = 'web-account@5.0.35.2'
+PM_API_VERSION = '4'
 SRP_LEN_BYTES = 256
 SALT_LEN_BYTES = 10
-
 DEFAULT_TIMEOUT = (3.05, 27)
 
 DEFAULT_HEADERS = {
@@ -14,8 +14,8 @@ DEFAULT_HEADERS = {
     'origin': 'https://account.proton.me',
     'referer': 'https://account.proton.me',
     'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/113.0',
-    'x-pm-appversion': PM_APP_VERSION,
-    'x-pm-apiversion': f'{PM_API_VERSION}',
+    'x-pm-appversion': PM_APP_VERSION_MAIL,
+    'x-pm-apiversion': PM_API_VERSION,
 }
 
 DNS_HOSTS = [

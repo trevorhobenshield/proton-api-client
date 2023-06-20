@@ -4,6 +4,7 @@ import gnupg
 from selectolax.lexbor import LexborHTMLParser
 from tqdm import tqdm
 
+from .constants import PM_APP_VERSION_ACCOUNT
 from .login import login
 
 
@@ -21,6 +22,16 @@ class ProtonMail:
 
     def users(self):
         return self.client.get(f'{self.account_api}/core/v4/users').json()
+
+    def sessions(self):
+        return self.client.get(f'{self.account_api}/auth/v4/sessions').json()
+
+    def info(self):
+        headers = dict(self.client.headers) | {'x-pm-appversion': PM_APP_VERSION_ACCOUNT}
+        return self.client.post(f'{self.account_api}/core/v4/auth/info', headers=headers).json()
+
+    def revoke_all_sessions(self):
+        self.client.delete(f'{self.account_api}/auth/v4/sessions')
 
     def gpg_import(self, fname: str, passphrase: str = None):
         self.gpg.import_keys_file(fname, passphrase=passphrase or self.gpg_passphrase)
@@ -70,10 +81,6 @@ class ProtonMail:
         }
         return self.client.get(f'{self.api}/core/v4/addresses', params=params).json()
 
-    def info(self):
-        headers = dict(self.client.headers) | {'x-pm-appversion': 'web-account@5.0.35.1'}
-        return self.client.post(f'{self.account_api}/core/v4/auth/info', headers=headers).json()
-
     def inbox_decrypted(self, params: dict = None):
         """
         just testing things out - move into smaller and different functions
@@ -84,8 +91,7 @@ class ProtonMail:
             'LabelID': 0,
             'Sort': 'Time',
             'Desc': 1,
-            # 'Limit': 100,
-            # 'Attachments': 1, # only get messages with attachments
+            # 'Attachments': 1,  ## filter attachments
         }
         inbox = self.client.get(f"{self.api}/mail/v4/conversations", params=params).json()
         conversation_ids = [x.get('ID') for x in inbox.get('Conversations')]
