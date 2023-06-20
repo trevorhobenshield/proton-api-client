@@ -27,7 +27,7 @@ class PMHash:
         ])
 
 
-def pm_hash(b: bytes = b''):
+def pm_hash(b: bytes = b'') -> object:
     return PMHash(b)
 
 
@@ -69,7 +69,7 @@ def hash_custom(hash_class: callable, *args) -> int:
     return b2l(h.digest())
 
 
-def dump(path: str, **kwargs):
+def dump(path: str, **kwargs) -> None:
     fname, data = list(kwargs.items())[0]
     out = Path(path)
     out.mkdir(exist_ok=True, parents=True)
