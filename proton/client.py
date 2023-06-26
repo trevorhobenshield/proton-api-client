@@ -96,7 +96,7 @@ class ProtonMail:
 
     def info(self) -> dict:
         headers = dict(self.client.headers) | {'x-pm-appversion': PM_APP_VERSION_ACCOUNT}
-        return self._get(self.account_api, 'core/v4/auth/info', headers=headers).json()
+        return self._post(self.account_api, 'core/v4/auth/info', headers=headers).json()
 
     def calendar_directory(self) -> dict:
         return self._get(self.api, 'calendar/v1/directory', params={'Type': 2}).json()
@@ -140,6 +140,10 @@ class ProtonMail:
     def _get(self, base: str, endpoint: str, **kwargs) -> Response:
         self.client.cookies.delete('Session-Id', domain='.protonmail.ch')
         return self.client.get(f'{base}/{endpoint}', **kwargs)
+
+    def _post(self, base, endpoint, **kwargs) -> Response:
+        self.client.cookies.delete('Session-Id', domain='.protonmail.ch')
+        return self.client.post(f'{base}/{endpoint}', **kwargs)
 
     def __gpg_clear(self) -> list[dict]:
         """ Delete all GPG keys """

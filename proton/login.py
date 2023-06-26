@@ -4,7 +4,7 @@ import gnupg
 from httpx import Client
 
 from . import User
-from .constants import DEFAULT_HEADERS
+from .constants import DEFAULT_HEADERS, GREEN, RESET, RED
 
 
 def login(username: str, password: str) -> Client:
@@ -23,10 +23,29 @@ def login(username: str, password: str) -> Client:
         'ClientProof': b64encode(client_proof).decode('utf8'),
         'SRPSession': info['SRPSession'],
     }).json()
+
+    if auth["Code"] not in {1000, 1001}:
+        if auth["Code"] == 9001:
+            print('CAPTCHA')
+            hvt = auth["Details"]["HumanVerificationToken"]
+            ## todo: open with selenium?
+            # hvt = auth["Details"]["HumanVerificationToken"]
+            # r = client.get(
+            #     'https://api.protonmail.ch/core/v4/captcha',
+            #     params={'Token': hvt},
+            #     headers=DEFAULT_HEADERS | {
+            #         'x-pm-human-verification-token-type': 'captcha',
+            #         'x-pm-human-verification-token': hvt,
+            #     }
+            # )
+            # Path('captcha.html').write_bytes(r.content)
+        elif auth["Code"] == 12087:
+            ...  # del hvt
+
     user.verify_session(b64decode(auth['ServerProof']))
 
     # todo
-    print('login success') if user.authenticated() else print('*** login failure')
+    print(f'{GREEN}login success{RESET}') if user.authenticated() else print(f'{RED}login failure{RESET}')
 
     if auth['UID']:
         client.headers.update({

@@ -1,5 +1,5 @@
 VERSION = "0.7.1"
-PM_APP_VERSION_MAIL = 'web-mail@5.0.23.1'
+PM_APP_VERSION_MAIL = 'web-mail@5.0.23.1'  # do not use. CAPTCHA may be triggered?
 PM_APP_VERSION_ACCOUNT = 'web-account@5.0.35.2'
 PM_API_VERSION = '4'
 SRP_LEN_BYTES = 256
@@ -13,8 +13,8 @@ DEFAULT_HEADERS = {
     'content-type': 'application/json',
     'origin': 'https://account.proton.me',
     'referer': 'https://account.proton.me',
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/113.0',
-    'x-pm-appversion': PM_APP_VERSION_MAIL,
+    'user-agent': 'Ubuntu_20.04',  # do not modify. CAPTCHA may be triggered?
+    'x-pm-appversion': 'Other',  # do not modify. CAPTCHA may be triggered?
     'x-pm-apiversion': PM_API_VERSION,
 }
 
@@ -63,3 +63,14 @@ WO4BAMcm1u02t4VKw++ttECPt+HUgPUq5pqQWe5Q2cW4TMsE
 -----END PGP PUBLIC KEY BLOCK-----"""
 
 SRP_MOD_KEY_FINGERPRINT = "248097092b458509c508dac0350585c4e9518f26"
+
+BLACK = '\x1b[30m'
+RED = '\x1b[31m'
+GREEN = '\x1b[32m'
+YELLOW = '\x1b[33m'
+BLUE = '\x1b[34m'
+MAGENTA = '\x1b[35m'
+CYAN = '\x1b[36m'
+WHITE = '\x1b[37m'
+BOLD = '\x1b[1m'
+RESET = '\x1b[0m'
