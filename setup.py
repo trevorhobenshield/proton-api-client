@@ -10,7 +10,7 @@ install_requires = [
     'orjson',
     'httpx',
     'tqdm',
-    'uvloop',
+    'uvloop; platform_system != "Windows"',
     'nest_asyncio',
 ]
 
