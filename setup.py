@@ -16,7 +16,7 @@ install_requires = [
 
 setup(
     name='proton-api-client',
-    version='0.0.7',
+    version='0.0.8',
     python_requires='>=3.10.10',
     description='Proton Mail API',
     long_description=dedent('''
